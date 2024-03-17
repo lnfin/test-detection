@@ -21,6 +21,9 @@ import pydantic
 from typing import List, Optional
 import bittensor as bt
 
+# VERY IMPORTANT
+# CODE
+# RIGHT HERE
 
 class TextSynapse(bt.Synapse):
     """
