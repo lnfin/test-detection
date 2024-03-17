@@ -21,11 +21,13 @@ import time
 from datetime import timedelta
 from shlex import split
 from typing import List
-import constants
+from pathlib import Path
 
 log = logging.getLogger(__name__)
 UPDATES_CHECK_TIME = timedelta(minutes=15)
 
+ROOT_DIR = Path(__file__).parent.parent
+print("ROOD_DIR", ROOT_DIR)
 
 def get_version() -> str:
     """Extract the version as current git commit hash"""
@@ -33,7 +35,7 @@ def get_version() -> str:
         split("git rev-parse HEAD"),
         check=True,
         capture_output=True,
-        cwd=constants.ROOT_DIR,
+        cwd=ROOT_DIR,
     )
     commit = result.stdout.decode().strip()
     assert len(commit) == 40, f"Invalid commit hash: {commit}"
@@ -61,7 +63,7 @@ def start_validator_process(pm2_name: str, args: List[str]) -> subprocess.Popen:
             "neurons.validator",
             *args,
         ),
-        cwd=constants.ROOT_DIR,
+        cwd=ROOT_DIR,
     )
     process.pm2_name = pm2_name
 
@@ -71,7 +73,7 @@ def start_validator_process(pm2_name: str, args: List[str]) -> subprocess.Popen:
 def stop_validator_process(process: subprocess.Popen) -> None:
     """Stop the validator process"""
     subprocess.run(
-        ("pm2", "delete", process.pm2_name), cwd=constants.ROOT_DIR, check=True
+        ("pm2", "delete", process.pm2_name), cwd=ROOT_DIR, check=True
     )
 
 
@@ -87,11 +89,11 @@ def pull_latest_version() -> None:
     """
     try:
         subprocess.run(
-            split("git pull --rebase --autostash"), check=True, cwd=constants.ROOT_DIR
+            split("git pull --rebase --autostash"), check=True, cwd=ROOT_DIR
         )
     except subprocess.CalledProcessError as exc:
         log.error("Failed to pull, reverting: %s", exc)
-        subprocess.run(split("git rebase --abort"), check=True, cwd=constants.ROOT_DIR)
+        subprocess.run(split("git rebase --abort"), check=True, cwd=ROOT_DIR)
 
 
 def upgrade_packages() -> None:
@@ -106,8 +108,9 @@ def upgrade_packages() -> None:
         subprocess.run(
             split(f"{sys.executable} -m pip install -e ."),
             check=True,
-            cwd=constants.ROOT_DIR,
+            cwd=ROOT_DIR,
         )
+        
     except subprocess.CalledProcessError as exc:
         log.error("Failed to upgrade packages, proceeding anyway. %s", exc)
 
