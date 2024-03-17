@@ -24,7 +24,7 @@ from typing import List
 from pathlib import Path
 
 log = logging.getLogger(__name__)
-UPDATES_CHECK_TIME = timedelta(minutes=15)
+UPDATES_CHECK_TIME = timedelta(minutes=1)
 
 ROOT_DIR = Path(__file__).parent.parent
 print("ROOD_DIR", ROOT_DIR)
@@ -110,7 +110,7 @@ def upgrade_packages() -> None:
             check=True,
             cwd=ROOT_DIR,
         )
-        
+
     except subprocess.CalledProcessError as exc:
         log.error("Failed to upgrade packages, proceeding anyway. %s", exc)
 
